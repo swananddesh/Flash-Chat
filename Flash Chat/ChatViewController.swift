@@ -2,7 +2,7 @@ import UIKit
 import Firebase
 
 
-class ChatViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class ChatViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate {
     
     
     // Declare instance variables here
@@ -19,17 +19,18 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        //TODO: Set yourself as the delegate and datasource here:
         messageTableView.delegate = self
         messageTableView.dataSource = self
+        messageTextfield.delegate = self
         
         
-        //TODO: Set yourself as the delegate of the text field here:
-
+        // This TapGesture is used to dismiss keyboard when user taps on Tableview.
         
+        // #selector belongs to legacy code which was previously used to develop iOS apps, i.e using Objective C language.
+        // Hence tableViewTapped method is declared using @objc annotation.
         
-        //TODO: Set the tapGesture here:
-        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tableViewTapped))
+        messageTableView.addGestureRecognizer(tapGesture)
         
 
         //TODO: Register your MessageCell.xib file here:
@@ -37,14 +38,12 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
         
         configureTableView()
     }
-
-    ///////////////////////////////////////////
     
     //MARK: - TableView DataSource Methods
     
     
     
-    //TODO: Declare cellForRowAtIndexPath here:
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "customMessageCell", for: indexPath) as! CustomMessageCell
@@ -57,14 +56,16 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
     
     
-    //TODO: Declare numberOfRowsInSection here:
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 3
     }
     
     
-    //TODO: Declare tableViewTapped here:
-    
+
+    @objc func tableViewTapped() {
+        messageTextfield.endEditing(true)
+    }
     
     
     //This method will set table view cell height based on the content in that particular cell.
@@ -75,22 +76,27 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
     
     
-    ///////////////////////////////////////////
-    
     //MARK:- TextField Delegate Methods
     
+    // Below method will elevate the message textfied, as keyboard will be poped up when we tap a textfield to enter the message.
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        
+        UIView.animate(withDuration: 0.5) {
+            // Default height of heightConstraint is specified as 50 and normally keyboard's height is 258. Hence added 50 in 258 which equals 308.
+            self.heightConstraint.constant = 308
+            
+            self.view.layoutIfNeeded() // This will redraw a layout if any change occurs, i.e. when we enter text in textfield.
+        }
+    }
     
     
-    
-
-    
-    //TODO: Declare textFieldDidBeginEditing here:
-    
-    
-    
-    
-    //TODO: Declare textFieldDidEndEditing here:
-    
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        
+        UIView.animate(withDuration: 0.5) {
+            self.heightConstraint.constant = 50
+            self.view.layoutIfNeeded()
+        }
+    }
 
     
     ///////////////////////////////////////////
@@ -131,6 +137,4 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
         
     }
     
-
-
 }
